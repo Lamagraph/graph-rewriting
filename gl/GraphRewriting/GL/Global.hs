@@ -84,7 +84,7 @@ showLabelledTree indentation init combine = snd . rec where
 	rec (Leaf l x) = (x, l ⧺ " " ⧺ show x)
 	rec (Branch l ts) = (x, l ⧺ " " ⧺ show x ⧺ "\n" ⧺ indent (unlines ls)) where
 		x = foldr combine init xs
-		(xs, ls) = unzip $ map rec ts
+		(xs, ls) = Prelude.unzip $ map rec ts
 
 	indent str = unlines $ map (replicate indentation ' ' ⧺) (lines str)
 
