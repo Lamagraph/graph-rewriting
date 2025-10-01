@@ -1,0 +1,7 @@
+packages:
+  graph-rewriting-lambdascope.cabal
+  ../gl/graph-rewriting-gl.cabal
+  ../base/graph-rewriting.cabal
+  ../layout/graph-rewriting-layout.cabal
+  ../strategies/graph-rewriting-strategies.cabal
+
