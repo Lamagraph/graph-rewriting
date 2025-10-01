@@ -18,6 +18,9 @@ Category:       Graphs
 Cabal-Version:  >= 1.10
 Extra-Source-Files: AUTHORS
 
+custom-setup
+  setup-depends: Cabal, base
+
 Library
   Default-Language: Haskell2010
   Build-Depends:
