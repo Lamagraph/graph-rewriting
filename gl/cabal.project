@@ -1,0 +1,8 @@
+packages:
+  graph-rewriting-gl.cabal
+  ../base/graph-rewriting.cabal
+  ../layout/graph-rewriting-layout.cabal
+
+
+
+
