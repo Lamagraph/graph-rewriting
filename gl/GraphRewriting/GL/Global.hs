@@ -11,6 +11,7 @@ import Data.List ((\\))
 import Data.Set (Set)
 import qualified Data.Set as Set
 import Data.Traversable
+import Debug.Trace (traceShow)
 import GraphRewriting.Graph
 import GraphRewriting.Graph.Read
 import GraphRewriting.Layout.RotPortSpec
@@ -179,7 +180,7 @@ numNodes = length . subtrees
 executed everywhere they match, except if they overlap one of them is chosen at random.
 So this corresponds to a complete development.
 -}
-applyLeafRules :: (Rule n -> Rule n) -> Int -> IORef (GlobalVars n) -> IO ()
+applyLeafRules :: (Show n) => (Rule n -> Rule n) -> Int -> IORef (GlobalVars n) -> IO ()
 applyLeafRules restriction idx gvs = do
   g <- readGraph gvs
 
@@ -201,7 +202,8 @@ applyLeafRules restriction idx gvs = do
           ns' = evalGraph readNodeList g'
           newNodes = ns' Data.List.\\ ns
       layout <- layoutStep <$> readIORef gvs
-      writeGraph (execGraph (replicateM_ 15 (mapM layout newNodes)) g') gvs
+      let newGraph = execGraph (replicateM_ 15 (mapM layout newNodes)) g'
+      writeGraph (traceShow newGraph newGraph) gvs
       modifyIORef gvs $ \x -> x{getRules = fst $ top (tree', p)}
  where
   -- At every leaf apply the rule restricted to the set of predetermined matches, every time removing the
