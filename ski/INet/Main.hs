@@ -34,8 +34,9 @@ main = do
   UI.run
     40 -- Here we specify that layoutStep should be applied 40 times to the initial random layout of the graph before displaying it.
     id -- We use the identity projection. You don't have to care about this.
-    layoutStep -- This specifies the modification of the graph's layout, which is applied in every frame of the animation.
-    (wrapGraph graph) -- Our graph, wrapped in paper.
+    -- layoutStep -- This specifies the modification of the graph's layout, which is applied in every frame of the animation.
+    pure
+    graph -- Our graph, wrapped in paper.
     ruleTree -- The rule menu you will see in the top left corner of the window.
 
 -- Here we specify the forces that are applied in each layout step. You can play around with the values, but strange things may happen (correction: strange things already DO happen).

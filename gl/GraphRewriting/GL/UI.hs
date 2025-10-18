@@ -41,7 +41,7 @@ initialise :: IO (String, [String])
 initialise = GL.getArgsAndInitialize
 
 run ::
-  (View Position n, Render n', View Position n', View Rotation n', PortSpec n', View [Port] n') =>
+  (Show n, Show n') =>
   -- | The number of initial layout steps to apply before displaying the graph
   Int ->
   -- | A projection function that is applied just before displaying the graph (KubEF: id function :D )
@@ -84,7 +84,7 @@ run initSteps project layoutStep g rules = do
     GL.initialDisplayMode $= [GL.DoubleBuffered]
     p <- get GL.displayModePossible
     when (not p) $ GL.initialDisplayMode $= []
-  c <- setupCanvas project star globalVars -- creates the window, registers callbacks
+  c <- setupEmptyCanvas project globalVars -- creates the window, registers callbacks
   modifyIORef globalVars $ \v -> v{canvas = c}
   setupMenu globalVars
   layoutLoop globalVars
