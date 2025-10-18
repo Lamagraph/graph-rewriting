@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE UnicodeSyntax #-}
 
-module GraphRewriting.GL.Canvas (setupCanvas) where
+module GraphRewriting.GL.Canvas (setupCanvas, setupEmptyCanvas) where
 
 import Data.Functor ()
 import Data.IORef
@@ -21,7 +21,7 @@ import qualified Graphics.UI.GLUT as GL
 import Prelude.Unicode
 
 setupCanvas ::
-  (View Position n, Render n', View Rotation n', View Position n') =>
+  (View Position n, Render n', View Rotation n', View Position n', Show n, Show n') =>
   (Graph n -> Graph n') -> (Edge -> [n'] -> [(Vector2, Vector2)]) -> IORef (GlobalVars n) -> IO GL.Window
 setupCanvas project hyperEdgeToLines globalVars = do
   canvas <- GL.createWindow "Graph"
@@ -35,6 +35,60 @@ setupCanvas project hyperEdgeToLines globalVars = do
   GL.cursor $= GL.LeftArrow
   return canvas
 
+setupEmptyCanvas ::
+  (Show n, Show n') =>
+  (Graph n -> Graph n') -> IORef (GlobalVars n) -> IO GL.Window
+setupEmptyCanvas project globalVars = do
+  canvas <- GL.createWindow "Graph"
+  GL.clearColor $= (GL.Color4 1 1 1 0 :: GL.Color4 GL.GLclampf)
+  GL.lineWidth $= 2
+  aspect <- newIORef 1
+  focus <- newIORef $ GL.Vector3 0 0 0
+  zoom <- newIORef (1 :: GL.GLdouble)
+  origLayoutStep <- layoutStep <$> readIORef globalVars
+  registerMinimumCallbacks aspect focus zoom project globalVars
+  return canvas
+
+registerMinimumCallbacks ::
+  IORef GL.GLdouble ->
+  IORef (GL.Vector3 GL.GLdouble) ->
+  IORef GL.GLdouble ->
+  (Graph n1 -> Graph n2) ->
+  IORef (GlobalVars n1) ->
+  IO ()
+registerMinimumCallbacks aspect focus zoom project globalVars = do
+  GL.displayCallback $= display
+  GL.keyboardMouseCallback $= Just inputCallback
+ where
+  display = do
+    GL.clear [GL.ColorBuffer]
+    GL.loadIdentity
+    a <- readIORef aspect
+    if a < 1 then GL.ortho2D (-1) 1 (-1 / a) (1 / a) else GL.ortho2D (-1 * a) (1 * a) (-1) 1
+    z <- readIORef zoom
+    GL.scale z z 1
+    GL.translate =<< readIORef focus
+
+    GL.color (GL.Color3 0 0 0 :: GL.Color3 GL.GLfloat)
+    g <- project . graph <$> readIORef globalVars
+    -- mapM_ (uncurry renderLine) (concatMap (uncurry hyperEdgeToLines) (edges g))
+    hl <- highlighted <$> readIORef globalVars
+    -- mapM_ (renderNode hl) (evalGraph readNodeList g `zip` nodes g)
+    w <- menu <$> readIORef globalVars
+    redisplay w -- redisplay the menu subwindow
+    GL.swapBuffers
+  inputCallback (GL.MouseButton GL.RightButton) GL.Up mod (GL.Position x y) = resume globalVars
+
+registerCallbacks ::
+  (Render n1, Show n2, View Rotation n1, View Position n1, View Position n2) =>
+  (Node -> Rewrite n2 ()) ->
+  IORef Double ->
+  IORef (GL.Vector3 GL.GLdouble) ->
+  IORef GL.GLdouble ->
+  (Graph n2 -> Graph n1) ->
+  (Edge -> [n1] -> [(Vector2, Vector2)]) ->
+  IORef (GlobalVars n2) ->
+  IO ()
 registerCallbacks origLayoutStep aspect focus zoom project hyperEdgeToLines globalVars = do
   autozoom
   GL.displayCallback $= display
@@ -45,7 +99,7 @@ registerCallbacks origLayoutStep aspect focus zoom project hyperEdgeToLines glob
 
   inputCallback (GL.MouseButton GL.WheelUp) _ _ _ = zoomBy 1.1
   inputCallback (GL.MouseButton GL.WheelDown) _ _ _ = zoomBy 0.9
-  inputCallback (GL.MouseButton GL.RightButton) GL.Down mod pos = do
+  inputCallback (GL.MouseButton GL.RightButton) GL.Down _ pos = do
     pause globalVars
     node <- nodeAt pos
     case node of
