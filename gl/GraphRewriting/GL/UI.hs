@@ -44,12 +44,13 @@ run ::
   (View Position n, Render n', View Position n', View Rotation n', PortSpec n', View [Port] n') =>
   -- | The number of initial layout steps to apply before displaying the graph
   Int ->
-  -- | A projection function that is applied just before displaying the graph
+  -- | A projection function that is applied just before displaying the graph (KubEF: id function :D )
   (Graph n -> Graph n') ->
   -- | The monadic graph transformation code for a layout step
   (Node -> Rewrite n a) ->
+  -- | (KubEF: execution graph)
   Graph n ->
-  -- | The rule menu given as a tree of named rules
+  -- | The rule menu given as a tree of named rules (KubEF: map: @name rule@ -> @rule@)
   LabelledTree (Rule n) ->
   IO ()
 run initSteps project layoutStep g rules = do
