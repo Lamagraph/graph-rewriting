@@ -12,7 +12,7 @@ import Prelude.Unicode
 menuItemHeight = 20
 font = Fixed9By15
 
-setupMenu :: IORef (GlobalVars n) -> IO ()
+setupMenu :: (Show n) => IORef (GlobalVars n) -> IO ()
 setupMenu globalVars = do
   c <- canvas <$> readIORef globalVars
   ruleTree <- getRules <$> readIORef globalVars
