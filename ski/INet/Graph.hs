@@ -33,6 +33,7 @@ data SKI
     S0 {inp :: Port}
   | S1 {inp :: Port, out :: Port}
   | S2 {inp :: Port, out1 :: Port, out2 :: Port}
+  deriving (Show)
 
 -- While it is very convenient to specify the nodes' ports as record fields as above it does not reveal the graph structure to the library. Therefore we have to provide some boilerplate code to expose the ports, for which we use the 'View' abstraction. In the future some Template Haskell might be included in the library to avoid this effort.
 instance View [Port] SKI where

@@ -14,7 +14,7 @@ import Data.IntSet (IntSet)
 import Prelude.Unicode
 
 -- | Hypergraph that holds nodes of type @n@. Nodes can be referenced by type 'Node', edges by type 'Edge', see "GraphRewriting.Graph.Read" and "GraphRewriting.Graph.Write"
-data Graph n = Graph {nodeMap :: IntMap n, edgeMap :: IntMap IntSet, nextKey :: Int}
+data Graph n = Graph {nodeMap :: IntMap n, edgeMap :: IntMap IntSet, nextKey :: Int} deriving (Show)
 
 newtype Rewrite n a = Rewrite {rewrite :: State (Graph n) a}
   deriving (MonadState (Graph n), Monad, Functor, MonadFix)
