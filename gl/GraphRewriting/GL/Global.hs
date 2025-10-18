@@ -155,7 +155,7 @@ layoutLoop :: IORef (GlobalVars n) -> TimerCallback
 layoutLoop globalVars = do
   gv@GlobalVars{graph = g, paused = p, layoutStep = l, canvas = c} <- readIORef globalVars
   unless p $ do
-    examine position (head $ nodes g) `seq` return ()
+    -- examine position (head $ nodes g) `seq` return ()
     writeIORef globalVars $ gv{graph = execGraph (mapM l =<< readNodeList) g} -- TODO: relayout all nodes at once
     redisplay c
     addTimerCallback 40 $ layoutLoop globalVars
