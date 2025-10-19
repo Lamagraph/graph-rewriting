@@ -3,7 +3,7 @@
 {-# LANGUAGE UnicodeSyntax #-}
 
 -- Given the graph signature in INet/Graph.hs, the rewrite rules in INet/Rules.hs and the layouting information and rendering code in INet/GL.hs we can tie it together to obtain an interactive, graphical application to see our rewriting system in action.
-module Main where
+module INet.Main where
 
 import Common.Term (parseFile)
 import GraphRewriting
