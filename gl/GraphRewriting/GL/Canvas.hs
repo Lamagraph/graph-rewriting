@@ -21,7 +21,7 @@ import qualified Graphics.UI.GLUT as GL
 import Prelude.Unicode
 
 setupCanvas ::
-  (View Position n, Render n', View Rotation n', View Position n') =>
+  (View Position n, Render n', View Rotation n', View Position n', Show n, Show n') =>
   (Graph n -> Graph n') -> (Edge -> [n'] -> [(Vector2, Vector2)]) -> IORef (GlobalVars n) -> IO GL.Window
 setupCanvas project hyperEdgeToLines globalVars = do
   canvas <- GL.createWindow "Graph"
