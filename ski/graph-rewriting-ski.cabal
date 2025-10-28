@@ -15,6 +15,28 @@ Cabal-Version:  >= 1.10
 Data-Files:     examples/*.ski examples/combinator_birds/*.ski
 Extra-Source-Files: AUTHORS
 
+library
+  exposed-modules:
+    Common.Term,
+    Common.GL,
+    INet.GL,
+    INet.Graph,
+    Main,
+    INet.Rules
+  hs-source-dirs: ., INet
+  default-language: Haskell2010
+  build-depends:
+    base >= 4.3 && < 5,
+    base-unicode-symbols >= 0.2 && < 0.3,
+    graph-rewriting >= 0.7.6 && < 0.9,
+    graph-rewriting-layout >= 0.5.4 && < 0.6,
+    graph-rewriting-gl >= 0.7.6 && < 0.8,
+    graph-rewriting-lib,
+    parsec >= 3.1.0 && < 3.2,
+    GLUT >= 2.4 && < 3,
+    OpenGL >= 3.0 && < 4
+
+
 Executable ski-inet
   Default-Language: Haskell2010
   Main-Is:        INet/Main.hs
@@ -31,26 +53,21 @@ Executable ski-inet
     graph-rewriting >= 0.7.6 && < 0.9,
     graph-rewriting-layout >= 0.5.4 && < 0.6,
     graph-rewriting-gl >= 0.7.6 && < 0.8,
+    graph-rewriting-lib,
     parsec >= 3.1.0 && < 3.2,
     GLUT >= 2.4 && < 3,
     OpenGL >= 3.0 && < 4
 
-Executable ski-direct
-  Default-Language: Haskell2010
-  Main-Is:        Direct/Main.hs
-  GHC-Options:    -fno-warn-duplicate-exports -fwarn-unused-binds -fwarn-unused-imports -fwarn-unused-do-bind -fwarn-wrong-do-bind -fwarn-unrecognised-pragmas -fno-warn-tabs -fno-warn-tabs
-  Other-Modules:  Common.GL Direct.GL Direct.Graph Direct.Rules Common.Term
-  Default-Extensions: UnicodeSyntax
-  Other-Extensions:
-    FlexibleInstances
-    FlexibleContexts
-    MultiParamTypeClasses
-  Build-Depends:
+
+test-suite graph-rewriting-ski-tests
+  type:                exitcode-stdio-1.0
+  main-is:             Spec.hs
+  other-modules:
+    Unit.Simple
+  build-depends:
     base >= 4.3 && < 5,
-    base-unicode-symbols >= 0.2 && < 0.3,
-    graph-rewriting >= 0.7.6 && < 0.9,
-    graph-rewriting-layout >= 0.5.4 && < 0.6,
-    graph-rewriting-gl >= 0.7.6 && < 0.8,
-    parsec >= 3.1.0 && < 3.2,
-    GLUT >= 2.4 && < 3,
-    OpenGL >= 3.0 && < 4
+    tasty,
+    tasty-hunit,
+    graph-rewriting-ski
+  hs-source-dirs:      tests
+  default-language:    Haskell2010
