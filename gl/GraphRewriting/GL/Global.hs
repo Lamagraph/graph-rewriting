@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE InstanceSigs #-}
 
 module GraphRewriting.GL.Global where
 
@@ -16,19 +17,19 @@ import GraphRewriting.Graph.Read
 import GraphRewriting.Layout.RotPortSpec
 import GraphRewriting.Pattern
 import GraphRewriting.Rule
-import Graphics.UI.GLUT (Window, addTimerCallback, postRedisplay)
+import Graphics.UI.GLUT (TimerCallback, Window, addTimerCallback, postRedisplay)
 import Prelude.Unicode
 import Prelude hiding (any, concat, concatMap, elem, foldr, mapM, or)
 
 data GlobalVars n = GlobalVars
-  { graph :: Graph n
-  , paused :: Bool
+  { graph :: Graph n -- graph to execute
+  , getRules :: RuleTree n -- named tree with rules
+  , layoutStep :: Node -> Rewrite n () -- ??the next state of the graph by Node??
   , selectedRule :: Int
+  , paused :: Bool
   , highlighted :: Set Node
-  , layoutStep :: Node -> Rewrite n ()
   , canvas :: Window
   , menu :: Window
-  , getRules :: RuleTree n
   }
 
 data LabelledTree a = Branch String [LabelledTree a] | Leaf String a
@@ -36,6 +37,8 @@ data LabelledTree a = Branch String [LabelledTree a] | Leaf String a
 data LTZipper a = Root | Child String [LabelledTree a] (LTZipper a) [LabelledTree a]
 
 type LTLoc a = (LabelledTree a, LTZipper a)
+
+type RuleTree n = LabelledTree (Int, Rule n)
 
 -- depth-first traversal
 next :: LTLoc a -> Maybe (LTLoc a)
@@ -96,6 +99,7 @@ showLabelledTree indentation init combine = snd . rec
   unlines xs = head xs ⧺ "\n" ⧺ unlines (tail xs)
 
 instance (Show a) => Show (LabelledTree a) where
+  show :: (Show a) => LabelledTree a -> String
   show (Leaf l x) = l ⧺ " " ⧺ show x
   show (Branch l s) = l ⧺ "\n" ⧺ indent (unlines $ map show s)
    where
@@ -107,30 +111,39 @@ instance (Show a) => Show (LabelledTree a) where
 redisplay :: Window -> IO ()
 redisplay = postRedisplay . Just
 
+readGraph :: IORef (GlobalVars n) -> IO (Graph n)
 readGraph = fmap graph . readIORef
+writeGraph :: Graph n -> IORef (GlobalVars n) -> IO ()
 writeGraph g = modifyGraph (const g)
 
+modifyGraph :: (Graph n -> Graph n) -> IORef (GlobalVars n) -> IO ()
 modifyGraph f globalVars = do
   modifyIORef globalVars $ \v -> v{graph = f $ graph v}
 
 applyRule :: Rule n -> IORef (GlobalVars n) -> IO ()
 applyRule r globalVars = do
+  -- it does not touch UI, except of global state
+
   layout <- layoutStep <$> readIORef globalVars
   g <- readGraph globalVars
   let ns = evalGraph readNodeList g
-  -- we don't use the fist element of the tuple and compute newNodes ourselves due to a bug in the graph-rewriting package (It's completely out of my hands!!!!1)
+  -- we don't use the first element of the tuple and compute newNodes ourselves due to a bug in the graph-rewriting package (It's completely out of my hands!!!!1)
   let (_, g') = runGraph (apply r) g
   let ns' = evalGraph readNodeList g'
   let newNodes = ns' Data.List.\\ ns
+  -- why `replicateM_ 15`???
   writeGraph (execGraph (replicateM_ 15 $ mapM layout newNodes) g') globalVars
+
   highlight globalVars
 
+selectRule :: Int -> IORef (GlobalVars n) -> IO ()
 selectRule i globalVars = do
   ruleListLength <- numNodes . getRules <$> readIORef globalVars
   when (0 ≤ i ∧ i < ruleListLength) $ do
     modifyIORef globalVars $ \v -> v{selectedRule = i}
     highlight globalVars
 
+highlight :: IORef (GlobalVars n) -> IO ()
 highlight globalVars = do
   gv@GlobalVars{graph = g, getRules = rs, selectedRule = r, highlighted = h, canvas = c} <- readIORef globalVars
   let rule = foldMap snd (subtrees rs !! r)
@@ -138,16 +151,18 @@ highlight globalVars = do
   writeIORef globalVars $ gv{highlighted = h'}
   redisplay c
 
+layoutLoop :: IORef (GlobalVars n) -> TimerCallback
 layoutLoop globalVars = do
   gv@GlobalVars{graph = g, paused = p, layoutStep = l, canvas = c} <- readIORef globalVars
   unless p $ do
-    examine position (head $ nodes g) `seq` return ()
+    -- examine position (head $ nodes g) `seq` return ()
     writeIORef globalVars $ gv{graph = execGraph (mapM l =<< readNodeList) g} -- TODO: relayout all nodes at once
     redisplay c
     addTimerCallback 40 $ layoutLoop globalVars
 
 pause globalVars = modifyIORef globalVars $ \vs -> vs{paused = True}
 
+resume :: IORef (GlobalVars n) -> IO ()
 resume globalVars = do
   modifyIORef globalVars $ \vs -> vs{paused = False}
   layoutLoop globalVars
@@ -161,8 +176,6 @@ subtrees t =
 numNodes :: LabelledTree a -> Int
 numNodes = length . subtrees
 
-type RuleTree n = LabelledTree (Int, Rule n)
-
 {- | Traverses the rule tree depth-first and executes all leaf rules it encounters. Rules are
 executed everywhere they match, except if they overlap one of them is chosen at random.
 So this corresponds to a complete development.
@@ -170,20 +183,24 @@ So this corresponds to a complete development.
 applyLeafRules :: (Show n) => (Rule n -> Rule n) -> Int -> IORef (GlobalVars n) -> IO ()
 applyLeafRules restriction idx gvs = do
   g <- readGraph gvs
+
+  -- Choose rules by index
   comptree <- getRules <$> readIORef gvs
   let pos = nth idx (root comptree)
+
   case pos of
     Nothing -> return ()
+    -- (KubEF: tree is set of rules to apply)
     Just (tree, p) -> do
       let ns = evalGraph readNodeList g
-      -- first we mark all redexes
-      let rule = restriction $ foldMap snd tree
-      -- then we find a non-overlapping subset
-      let ms = head $ evalPattern (matches rule) g
-      -- then we apply the rules in the leafs while restricting them to that subset
-      let ((_, g'), tree') = mapAccumL applyLeafRules' (ms, g) tree
-      let ns' = evalGraph readNodeList g'
-      let newNodes = ns' Data.List.\\ ns
+          -- first we mark all redexes
+          rule = restriction $ foldMap snd tree
+          -- then we find a non-overlapping subset
+          ms = head $ evalPattern (matches rule) g
+          -- then we apply the rules in the leafs while restricting them to that subsetT
+          ((_, g'), tree') = mapAccumL applyLeafRules' (ms, g) tree
+          ns' = evalGraph readNodeList g'
+          newNodes = ns' Data.List.\\ ns
       layout <- layoutStep <$> readIORef gvs
       let newGraph = execGraph (replicateM_ 15 (mapM layout newNodes)) g'
       writeGraph (traceShow newGraph newGraph) gvs
@@ -191,11 +208,12 @@ applyLeafRules restriction idx gvs = do
  where
   -- At every leaf apply the rule restricted to the set of predetermined matches, every time removing the
   -- the match from the set updating the graph and the counter.
-  -- 	applyLeafRules' ∷ ([Match], Graph n) → (Int, Rule n) → (([Match], Graph n), (Int, Rule n))
+  -- applyLeafRules' :: ([Match], Graph n) -> (Int, Rule n) -> (([Match], Graph n), (Int, Rule n))
+  -- (KubEF: fully unUI subfunction)
   applyLeafRules' (matches, g) (n, r) =
     let
-      ms = runPattern r' g
       r' = restrictOverlap (\past future -> future `elem` matches) (restriction r)
+      ms = runPattern r' g
      in
       if null ms
         then ((matches, g), (n, r))
