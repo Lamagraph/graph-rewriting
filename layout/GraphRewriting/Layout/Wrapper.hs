@@ -31,6 +31,12 @@ import GraphRewriting.Layout.Rotation
 -- | Wraps a value of type @w@, augmenting it with layout information
 data Wrapper w = Wrapper {wRot :: Rotation, wPos :: Position, wrappee :: w}
 
+instance (Show w) => Show (Wrapper w) where
+  show (Wrapper _ _ w) = show w
+
+instance (Eq w) => Eq (Wrapper w) where
+  (Wrapper _ _ w1) == (Wrapper _ _ w2) = w1 == w2
+
 instance (View v n) => View v (Wrapper n) where
   inspect = inspect . wrappee
   adjust f w = w{wrappee = adjust f $ wrappee w}

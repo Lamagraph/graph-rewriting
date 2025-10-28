@@ -41,7 +41,7 @@ initialise :: IO (String, [String])
 initialise = GL.getArgsAndInitialize
 
 run ::
-  (Show n, Show n') =>
+  (View Position n, Render n', View Position n', View Rotation n', PortSpec n', View [Port] n', Show n, Show n', Eq n, Eq n') =>
   -- | The number of initial layout steps to apply before displaying the graph
   Int ->
   -- | A projection function that is applied just before displaying the graph (KubEF: id function :D )

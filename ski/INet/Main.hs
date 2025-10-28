@@ -14,6 +14,7 @@ import GraphRewriting.Layout.Coulomb
 import GraphRewriting.Layout.Gravitation
 import GraphRewriting.Layout.SpringEmbedder
 import GraphRewriting.Layout.Wrapper
+import GraphRewriting.Lib.Lib as Lib
 import INet.GL ()
 import INet.Graph
 import INet.Rules
@@ -25,19 +26,24 @@ main :: IO ()
 main = do
   -- first we need to initialise the GUI (GLUT really), which returns the program name and the arguments supplied to the program call (minus any GLUT options).
   (prog, args) <- UI.initialise
-  file <- case args of
-    [f] -> return f
-    ___ -> error "usage: ski [GLUT-options] <file>"
+  (file, mode) <- case args of
+    [f, m] -> return (f, m)
+    ___ -> error "usage: ski [GLUT-options] <file> <mode>\nwhere mode = [UI | Lib]"
   term <- parseFile file
   let graph = fromTerm term -- here we compile the parsed term into a graph (see INet/Graph.hs)
-  -- and finally we run the GUI.
-  UI.run
-    40 -- Here we specify that layoutStep should be applied 40 times to the initial random layout of the graph before displaying it.
-    id -- We use the identity projection. You don't have to care about this.
-    -- layoutStep -- This specifies the modification of the graph's layout, which is applied in every frame of the animation.
-    pure
-    graph -- Our graph, wrapped in paper.
-    ruleTree -- The rule menu you will see in the top left corner of the window.
+  if mode == "Lib"
+    then do
+      resultGraph <- Lib.run 40 id pure graph ruleTreeL
+      putStrLn $ "Result graph is:\n" ++ show resultGraph
+      return ()
+    else
+      -- and finally we run the GUI.
+      UI.run
+        40 -- Here we specify that layoutStep should be applied 40 times to the initial random layout of the graph before displaying it.
+        id -- We use the identity projection. You don't have to care about this.
+        layoutStep -- This specifies the modification of the graph's layout, which is applied in every frame of the animation.
+        (wrapGraph graph) -- Our graph, wrapped in paper.
+        ruleTree -- The rule menu you will see in the top left corner of the window.
 
 -- Here we specify the forces that are applied in each layout step. You can play around with the values, but strange things may happen (correction: strange things already DO happen).
 layoutStep n = do
@@ -57,14 +63,25 @@ layoutStep n = do
 
 -- The menu that appears at the top-left corner of the window allows it to select specific rules that we defined in INet/Rules.hs. It comes in form of a tree, where the parent of a subtree is the disjunction of the subtree's rules.
 ruleTree =
-  Branch
+  UI.Branch
     "All"
-    [ Leaf "Eliminate" eliminate
-    , Branch "Erase" [Leaf "E0" ruleE0, Leaf "E1" ruleE1, Leaf "E2" ruleE2]
-    , Branch "S" [Leaf "S0" ruleS0, Leaf "S1" ruleS1, Leaf "S2" ruleS2]
-    , Branch "K" [Leaf "K0" ruleK0, Leaf "K1" ruleK1]
-    , Leaf "I" ruleI
-    , Branch "D" [Leaf "D0" ruleD0, Leaf "D1" ruleD1, Leaf "D2" ruleD2]
+    [ UI.Leaf "Eliminate" eliminate
+    , UI.Branch "Erase" [UI.Leaf "E0" ruleE0, UI.Leaf "E1" ruleE1, UI.Leaf "E2" ruleE2]
+    , UI.Branch "S" [UI.Leaf "S0" ruleS0, UI.Leaf "S1" ruleS1, UI.Leaf "S2" ruleS2]
+    , UI.Branch "K" [UI.Leaf "K0" ruleK0, UI.Leaf "K1" ruleK1]
+    , UI.Leaf "I" ruleI
+    , UI.Branch "D" [UI.Leaf "D0" ruleD0, UI.Leaf "D1" ruleD1, UI.Leaf "D2" ruleD2]
+    ]
+
+ruleTreeL =
+  Lib.Branch
+    "All"
+    [ Lib.Leaf "Eliminate" eliminate
+    , Lib.Branch "Erase" [Lib.Leaf "E0" ruleE0, Lib.Leaf "E1" ruleE1, Lib.Leaf "E2" ruleE2]
+    , Lib.Branch "S" [Lib.Leaf "S0" ruleS0, Lib.Leaf "S1" ruleS1, Lib.Leaf "S2" ruleS2]
+    , Lib.Branch "K" [Lib.Leaf "K0" ruleK0, Lib.Leaf "K1" ruleK1]
+    , Lib.Leaf "I" ruleI
+    , Lib.Branch "D" [Lib.Leaf "D0" ruleD0, Lib.Leaf "D1" ruleD1, Lib.Leaf "D2" ruleD2]
     ]
 
 -- That's it. I hope the tutorial was helpful. If you need any help in defining your own rewriting system, feel free to ask me (jan@rochel.info). Corrections / extensions of the library or the example applications are always welcome. Have fun with it!

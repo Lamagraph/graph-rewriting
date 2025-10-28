@@ -1,0 +1,3 @@
+packages:
+  graph-rewriting-lib.cabal
+  ../base/graph-rewriting.cabal
