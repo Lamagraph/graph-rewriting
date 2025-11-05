@@ -1,7 +1,6 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE UnicodeSyntax #-}
 
 module Main where
@@ -34,10 +33,17 @@ instance (Render n) => Render (Layout.Wrapper n) where render = render . wrappee
 instance (PortSpec n) => PortSpec (Control.Wrapper n) where portSpec = portSpec . wrapped
 instance (LeftmostOutermost n) => LeftmostOutermost (Layout.Wrapper n) where lmoPort = lmoPort . wrappee
 
-deriving instance Show Control
-deriving instance Eq Control
-deriving instance Show (Control.Wrapper (Layout.Wrapper NodeLS))
-deriving instance Eq (Control.Wrapper (Layout.Wrapper NodeLS))
+instance Show NodeLS where
+  show _ = error "TODO: Implement or derive Show NodeLS"
+
+instance Show Control where
+  show _ = error "TODO: Implement or derive Show Control"
+instance Eq Control where
+  (==) _ _ = error "TODO: Implement or derive Eq Control"
+instance Show (Control.Wrapper (Layout.Wrapper NodeLS)) where
+  show _ = error "TODO: Implement or derive Show (Control.Wrapper (Layout.Wrapper NodeLS))"
+instance Eq (Control.Wrapper (Layout.Wrapper NodeLS)) where
+  (==) _ _ = error "TODO: Implement or derive Eq (Control.Wrapper (Layout.Wrapper NodeLS))"
 
 main :: IO ()
 main = do

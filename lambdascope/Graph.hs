@@ -32,9 +32,6 @@ data NodeLS
       , name :: String
       }
 
-instance Show NodeLS where
-  show _ = "this must be NodeLS"
-
 -- | equality as defined in the paper with only the relevant cases included
 instance Eq NodeLS where
   Eraser{} == Eraser{} = True
