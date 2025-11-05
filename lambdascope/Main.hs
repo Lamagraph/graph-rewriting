@@ -1,8 +1,8 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE UnicodeSyntax #-}
 {-# LANGUAGE StandaloneDeriving #-}
+{-# LANGUAGE UnicodeSyntax #-}
 
 module Main where
 
@@ -94,7 +94,11 @@ layoutStep n = do
     rot <- angularMomentum n
     return (cgf, cf, sf, rot)
   Unsafe.adjustNode n $
-    Position . sf (\x -> min 10 (x * 0.9)) . cgf (\x -> min 10 (x * 0.01)) . cf (\x -> min 10 (100 / (x ^ 2 + 0.1))) . position
+    Position
+      . sf (\x -> min 10 (x * 0.9))
+      . cgf (\x -> min 10 (x * 0.01))
+      . cf (\x -> min 10 (100 / (x ^ 2 + 0.1)))
+      . position
   Unsafe.adjustNode n $ rot (* 0.9)
 
 lmoTree :: (LeftmostOutermost n, View [Port] n, View Control n) => LabelledTree (Rule n) -> LabelledTree (Rule n)

@@ -8,7 +8,7 @@ import Control.Applicative
 import Control.Monad
 import Control.Monad.Reader
 import Data.Functor.Identity
-import qualified Data.Set as Set (empty, insert, member)
+import qualified Data.Set  as Set (empty, insert, member)
 import GraphRewriting.Graph.Read
 import GraphRewriting.Pattern.Internal
 import Prelude.Unicode

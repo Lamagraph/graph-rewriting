@@ -21,7 +21,6 @@ library
     Common.GL,
     INet.GL,
     INet.Graph,
-    Main,
     INet.Rules
   hs-source-dirs: ., INet
   default-language: Haskell2010
