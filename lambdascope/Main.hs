@@ -33,6 +33,18 @@ instance (Render n) => Render (Layout.Wrapper n) where render = render . wrappee
 instance (PortSpec n) => PortSpec (Control.Wrapper n) where portSpec = portSpec . wrapped
 instance (LeftmostOutermost n) => LeftmostOutermost (Layout.Wrapper n) where lmoPort = lmoPort . wrappee
 
+instance Show NodeLS where
+  show _ = error "TODO: Implement or derive Show NodeLS"
+
+instance Show Control where
+  show _ = error "TODO: Implement or derive Show Control"
+instance Eq Control where
+  (==) _ _ = error "TODO: Implement or derive Eq Control"
+instance Show (Control.Wrapper (Layout.Wrapper NodeLS)) where
+  show _ = error "TODO: Implement or derive Show (Control.Wrapper (Layout.Wrapper NodeLS))"
+instance Eq (Control.Wrapper (Layout.Wrapper NodeLS)) where
+  (==) _ _ = error "TODO: Implement or derive Eq (Control.Wrapper (Layout.Wrapper NodeLS))"
+
 main :: IO ()
 main = do
   (prog, args) <- UI.initialise
@@ -88,7 +100,11 @@ layoutStep n = do
     rot <- angularMomentum n
     return (cgf, cf, sf, rot)
   Unsafe.adjustNode n $
-    Position . sf (\x -> min 10 (x * 0.9)) . cgf (\x -> min 10 (x * 0.01)) . cf (\x -> min 10 (100 / (x ^ 2 + 0.1))) . position
+    Position
+      . sf (\x -> min 10 (x * 0.9))
+      . cgf (\x -> min 10 (x * 0.01))
+      . cf (\x -> min 10 (100 / (x ^ 2 + 0.1)))
+      . position
   Unsafe.adjustNode n $ rot (* 0.9)
 
 lmoTree :: (LeftmostOutermost n, View [Port] n, View Control n) => LabelledTree (Rule n) -> LabelledTree (Rule n)

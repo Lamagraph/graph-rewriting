@@ -7,6 +7,7 @@
 
 module GraphRewriting.Graph.Internal where
 
+import Control.Monad.Fix
 import Control.Monad.Reader
 import Control.Monad.State
 import Data.IntMap as Map (IntMap, lookup)

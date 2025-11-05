@@ -13,6 +13,7 @@ module GraphRewriting.Graph.Read (
 )
 where
 
+import Control.Monad
 import Control.Monad.Reader
 import qualified Data.IntMap as Map
 import qualified Data.IntSet as Set

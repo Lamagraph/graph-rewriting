@@ -1,6 +1,0 @@
-packages:
-  graph-rewriting-ski.cabal
-  ../gl/graph-rewriting-gl.cabal
-  ../base/graph-rewriting.cabal
-  ../layout/graph-rewriting-layout.cabal
-  ../lib/graph-rewriting-lib.cabal
