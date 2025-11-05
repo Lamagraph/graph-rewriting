@@ -5,7 +5,7 @@
 module GraphRewriting.Pattern (module GraphRewriting.Pattern, PatternT, Pattern, Match, (<|>)) where
 
 import Control.Applicative
-import Control.Monad.List
+import Control.Monad
 import Control.Monad.Reader
 import Data.Functor.Identity
 import qualified Data.Set as Set (empty, insert, member)

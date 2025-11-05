@@ -10,6 +10,7 @@ module GraphRewriting.Rule (Replace, module GraphRewriting.Rule) where
 
 import Prelude.Unicode
 
+import Control.Monad
 import Control.Monad.Reader
 import Control.Monad.State
 import Data.List (nub)

@@ -14,6 +14,7 @@ data Vertex
   = Applicator {inp, out1, out2 :: Port}
   | Variable {inp :: Port, name :: Char}
   | Root {out :: Port}
+  deriving (Show, Eq)
 
 instance View [Port] Vertex where
   inspect node = case node of

@@ -2,6 +2,7 @@
 
 module Term where
 
+import Control.Monad
 import Control.Monad.Identity
 import Prelude.Unicode
 import Text.Parsec

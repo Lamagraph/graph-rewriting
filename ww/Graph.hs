@@ -15,6 +15,7 @@ data NodeWW
   | Eraser {inp :: Port}
   | Duplicator {active :: Bool, inp, out1, out2 :: Port}
   | Multiplexer {out :: Port, ins :: [Port]} -- only intermediate compilation result
+  deriving (Show, Eq)
 
 instance View [Port] NodeWW where
   inspect node = case node of

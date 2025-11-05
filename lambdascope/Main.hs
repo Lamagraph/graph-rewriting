@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE UnicodeSyntax #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 module Main where
 
@@ -32,6 +33,11 @@ import GraphRewriting.Strategies.LeftmostOutermost
 instance (Render n) => Render (Layout.Wrapper n) where render = render . wrappee
 instance (PortSpec n) => PortSpec (Control.Wrapper n) where portSpec = portSpec . wrapped
 instance (LeftmostOutermost n) => LeftmostOutermost (Layout.Wrapper n) where lmoPort = lmoPort . wrappee
+
+deriving instance Show Control
+deriving instance Eq Control
+deriving instance Show (Control.Wrapper (Layout.Wrapper NodeLS))
+deriving instance Eq (Control.Wrapper (Layout.Wrapper NodeLS))
 
 main :: IO ()
 main = do
