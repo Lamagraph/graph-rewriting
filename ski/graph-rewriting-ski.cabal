@@ -24,12 +24,16 @@ library
     INet.Rules
   hs-source-dirs: ., INet
   default-language: Haskell2010
+  ohther-extensions:
+    FlexibleInstances
+    FlexibleContexts
+    MultiParamTypeClasses
   build-depends:
     base >= 4.3 && < 5,
     base-unicode-symbols >= 0.2 && < 0.3,
-    graph-rewriting >= 0.7.6 && < 0.9,
-    graph-rewriting-layout >= 0.5.4 && < 0.6,
-    graph-rewriting-gl >= 0.7.6 && < 0.8,
+    graph-rewriting,
+    graph-rewriting-layout,
+    graph-rewriting-gl,
     graph-rewriting-lib,
     parsec >= 3.1.0 && < 3.2,
     GLUT >= 2.4 && < 3,
@@ -49,9 +53,9 @@ Executable ski-inet
   Build-Depends:
     base >= 4.3 && < 5,
     base-unicode-symbols >= 0.2 && < 0.3,
-    graph-rewriting >= 0.7.6 && < 0.9,
-    graph-rewriting-layout >= 0.5.4 && < 0.6,
-    graph-rewriting-gl >= 0.7.6 && < 0.8,
+    graph-rewriting,
+    graph-rewriting-layout,
+    graph-rewriting-gl,
     graph-rewriting-lib,
     parsec >= 3.1.0 && < 3.2,
     GLUT >= 2.4 && < 3,

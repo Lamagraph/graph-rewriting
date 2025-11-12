@@ -20,8 +20,8 @@ Library
   Build-Depends:
     base >= 4.9 && < 5,
     base-unicode-symbols >= 0.2 && < 0.3,
-    graph-rewriting >= 0.7.8 && < 0.9,
-    graph-rewriting-layout >= 0.5.4 && < 0.6,
+    graph-rewriting,
+    graph-rewriting-layout,
     GLUT >= 2.2 && < 3,
     OpenGL >= 3.0 && < 4,
     containers >= 0.3 && < 0.7,

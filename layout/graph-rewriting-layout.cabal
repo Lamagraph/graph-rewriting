@@ -19,7 +19,7 @@ Library
   Build-Depends:
     base >= 4.8 && < 5,
     base-unicode-symbols >= 0.2 && < 0.3,
-    graph-rewriting >= 0.7.8 && < 0.9,
+    graph-rewriting,
     AC-Vector >= 2.4.0 && < 2.5.0
   Exposed-Modules:
     GraphRewriting.Layout.Position
